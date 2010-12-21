@@ -122,7 +122,7 @@ class AdminController(AuthenticatedController):
         if not id:
             return self.json_error('No option id specified')
             
-        known_options = ['gzip_html']
+        known_options = ['expires_js', 'expires_css']
         if not id in known_options:
             return self.json_error('Unknown option id (%s)' % id)
 

@@ -15,10 +15,76 @@
 <table class="form">
   <tr id="gzip-field" class="field">
     <td class="label">gzip </td> 
-    {% if optimizations.gzip_html %}
-    <td><input type="checkbox" id="gzip_html" class="optimization" checked/></td>
+    <td>Automatic</td>
+  </tr>
+</table>
+<table class="form">
+  <tr id="gzip_html-field" class="field">
+    <td class="label">gzip compression </td> 
+    <td>Automatic</td>
+  </tr>
+</table>
+
+<div class="form-section">
+  <span>Javascript</span><span class="help-button">more info </span>
+  <div class="help-text">
+    <p>
+      These are optimizations for your Javascript files.
+    </p>
+    <p>
+      Gzip compression reduces response times and saves up to 70% of bandwidth by losslessly reducing the size of files. It is generally advisable to use gzip compression on all HTML, Javascript, and CSS files.
+    </p>
+    <p>
+      The "never expire" option sets a far future Expires header so that cached files will stay cached indefinitely. This is useful for content which is not expected to change. However, if the content needs to be changed then the name of the file will also need to be changed.
+      This is good for libraries, but not for content you will be updating. This option is appropriate for deployment sites, but not for development.
+    </p>
+  </div>
+</div>
+<table class="form">
+  <tr id="gzip_js-field" class="field">
+    <td class="label">gzip compression </td> 
+    <td>Automatic</td>
+  </tr>
+</table>
+<table class="form">
+  <tr id="expires_js-field" class="field">
+    <td class="label">Never expire </td> 
+    {% if optimizations.expires_js %}
+    <td><input type="checkbox" id="expires_js" class="optimization" checked/></td>
     {% else %}
-    <td><input type="checkbox" id="gzip_html" class="optimization"/></td>
+    <td><input type="checkbox" id="expires_js" class="optimization"/></td>
+    {% endif %}
+  </tr>
+</table>
+
+<div class="form-section">
+  <span>CSS</span><span class="help-button">more info </span>
+  <div class="help-text">
+    <p>
+      These are optimizations for your CSS files.
+    </p>
+    <p>
+      Gzip compression reduces response times and saves up to 70% of bandwidth by losslessly reducing the size of files. It is generally advisable to use gzip compression on all HTML, Javascript, and CSS files.
+    </p>
+    <p>
+      The "never expire" option sets a far future Expires header so that cached files will stay cached indefinitely. This is useful for content which is not expected to change. However, if the content needs to be changed then the name of the file will also need to be changed.
+      This is good for libraries, but not for content you will be updating. This option is appropriate for deployment sites, but not for development.
+    </p>
+  </div>
+</div>
+<table class="form">
+  <tr id="gzip_css-field" class="field">
+    <td class="label">gzip compression </td> 
+    <td>Automatic</td>
+  </tr>
+</table>
+<table class="form">
+  <tr id="expires_css-field" class="field">
+    <td class="label">Never expire </td> 
+    {% if optimizations.expires_js %}
+    <td><input type="checkbox" id="expires_css" class="optimization" checked/></td>
+    {% else %}
+    <td><input type="checkbox" id="expires_css" class="optimization"/></td>
     {% endif %}
   </tr>
 </table>

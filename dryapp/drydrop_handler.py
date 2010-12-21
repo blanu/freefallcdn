@@ -256,7 +256,8 @@ class AppHandler(webapp.RequestHandler):
         optimizations = Optimizations.all().filter("domain =", os.environ['SERVER_NAME']).fetch(1)
         if len(optimizations)==0:
             o = Optimizations()
-            o.gzip_html = False;
+            o.expires_js = False;
+            o.expires_css = False;
             o.domain = os.environ['SERVER_NAME']
             o.put()
             optimizations = [o]

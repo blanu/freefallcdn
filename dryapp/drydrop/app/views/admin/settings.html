@@ -5,7 +5,7 @@
     <span>Content Source</span><span class="help-button">more info </span>
   <div class="help-text">
     <p>
-      This Google App Engine site pulls source code from GitHub automatically. You have to specify your GitHub repository url in the form:<br/>
+      This FreefallCDN site pulls source code from GitHub automatically. You have to specify your GitHub repository url in the form:<br/>
       <code>http://github.com/<i>&lt;user&gt;</i>/<i>&lt;repo&gt;</i>/raw/<i>&lt;branch&gt;</i>/<i>&lt;path&gt;</i></code><br/>
       For example you can test it with my sources located at <b>http://github.com/darwin/drydrop/raw/master/tutorial</b>
     </p>
@@ -14,14 +14,14 @@
       <a href="http://github.com/darwin/drydrop/tree/master/tutorial"><img src="/drydrop-static/images/help-settings-github.png"></a>
     </p>
     <p>
-      Also note that by uploading config file you can define mapping between repository files and App Engine URLs. Don't worry! If you don't provide config file, DryDrop will 
+      Also note that by uploading config file you can define mapping between repository files and App Engine URLs. Don't worry! If you don't provide config file, FreefallCDN will
       provide default one which maps GitHub to App Engine 1:1. Look into <a href="config">config section</a> for more info.
     </p>
   </div>
 </div>
 <table class="form">
   <tr id="source-field" class="field">
-    <td class="label">Pulling from </td> 
+    <td class="label">Pulling from </td>
     <td id="source" class="edit">{{ settings.source or "" }}</td>
   </tr>
   <tr id="config-field" class="field">

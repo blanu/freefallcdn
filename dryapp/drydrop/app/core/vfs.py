@@ -11,7 +11,7 @@ from google.appengine.ext import db
 from drydrop.app.core.events import log_event
 
 class VFS(object):
-    """Virtual File System == filesystem abstraction for DryDrop"""
+    """Virtual File System == filesystem abstraction for FreefallCDN"""
     def __init__(self):
         super(VFS, self).__init__()
 

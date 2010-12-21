@@ -1,0 +1,28 @@
+{% extends "admin/layout.html" %}
+{% block title %}Optimizations{% endblock %}
+{% block main %}
+<div class="form-section">
+  <span>HTML</span><span class="help-button">more info </span>
+  <div class="help-text">
+    <p>
+      These are optimizations for your HTML pages.
+    </p>
+    <p>
+      Gzip compression reduces response times and saves up to 70% of bandwidth by losslessly reducing the size of files. It is generally advisable to use gzip compression on all HTML, Javascript, and CSS files.
+    </p>
+  </div>
+</div>
+<table class="form">
+  <tr id="gzip-field" class="field">
+    <td class="label">gzip </td> 
+    {% if optimizations.gzip_html %}
+    <td><input type="checkbox" id="gzip_html" class="optimization" checked/></td>
+    {% else %}
+    <td><input type="checkbox" id="gzip_html" class="optimization"/></td>
+    {% endif %}
+  </tr>
+</table>
+<br />
+
+<span>These settings are for <strong>{{settings.domain}}</strong></span>
+{% endblock %}

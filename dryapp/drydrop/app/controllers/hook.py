@@ -16,7 +16,7 @@ class HookController(BaseController):
         logging.info("Received github hook: %s", payload)
         if not payload:
             return
-        
+
         data = json_parse(payload)
         paths = []
         names = []
@@ -43,7 +43,7 @@ class HookController(BaseController):
                 paths.extend(commit['modified'])
             except:
                 pass
-                
+
         before_url = "%s/commit/%s" % (data['repository']['url'], data['before'])
         after_url = "%s/commit/%s" % (data['repository']['url'], data['after'])
         before = "?"
@@ -57,7 +57,7 @@ class HookController(BaseController):
             after = data['after'][:6]
         except:
             pass
-        
+
         plural = ''
         if len(paths)!=1:
             plural = 's'
@@ -66,24 +66,24 @@ class HookController(BaseController):
 
         repo_url = data['repository']['url'] # like http://github.com/darwin/drydrop
         branch = data['ref'].split('/').pop() # takes 'master' from 'refs/heads/master'
-        
+
         root_url = "%s/raw/%s" % (repo_url, branch) # creates http://github.com/darwin/drydrop/raw/master
         if not root_url.endswith('/'):
             root_url = root_url + '/'
         source_url = self.handler.settings.source
         if not source_url.endswith('/'):
             source_url = source_url + '/'
-            
+
         # now we have:
         # http://github.com/darwin/drydrop/raw/master/ in root_url
         # http://github.com/darwin/drydrop/raw/master/tutorial/ in source_url
-        
+
         # safety check
         if not source_url.startswith(root_url):
             log_event("<a target=\"_blank\" href=\"%s\"><code>%s</code></a><br/>is not affected by incoming changeset for<br/><a target=\"_blank\" href=\"%s\"><code>%s</code></a>" % (source_url, source_url, root_url, root_url), 0, authors)
             logging.info("Source url '%s' is not affected by incoming changeset for '%s'", source_url, root_url)
             return
-        
+
         vfs = self.handler.vfs
         for path in paths:
             prefix = source_url[len(root_url):] # prefix is 'tutorial/'

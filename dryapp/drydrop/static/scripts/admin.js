@@ -114,6 +114,10 @@ $(document).ready(function() {
         style: 'inherit'
     });
 
+    $('.optimization').click(function() {
+		$.post('/admin/update_optimization', {'id': $(this).attr('id'), 'value': $(this).is(':checked')});
+	});
+
 	$('.help-button').bind('click', function() {
 		$(this).parent().find('.help-text').toggle();
 	});

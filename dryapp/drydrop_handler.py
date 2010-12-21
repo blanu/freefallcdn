@@ -174,7 +174,7 @@ class AppHandler(webapp.RequestHandler):
         # If the request doesn't have an extension, return text/html
         basename, extension = os.path.splitext(request_path)
         if not extension:
-          self.response.headers['Content-Type'] = "text/html"
+          self.response.headers['Content-Type'] = "text/html"				
 
         self.response.set_status(status_code, status_message)
         self.response.out.write(body)
@@ -248,6 +248,19 @@ class AppHandler(webapp.RequestHandler):
             s.put()
             settings = [s]
         self.settings = settings[0]
+        
+    def load_or_init_optimizations(self):
+        from drydrop.app.models import Optimizations
+        
+        # fetch settings
+        optimizations = Optimizations.all().filter("domain =", os.environ['SERVER_NAME']).fetch(1)
+        if len(optimizations)==0:
+            o = Optimizations()
+            o.gzip_html = False;
+            o.domain = os.environ['SERVER_NAME']
+            o.put()
+            optimizations = [o]
+        self.optimizations = optimizations[0]
     
     def init_vfs(self):
         from drydrop.app.core.vfs import LocalVFS, GAEVFS
@@ -294,6 +307,7 @@ class AppHandler(webapp.RequestHandler):
         try:
             # load self.settings
             self.load_or_init_settings()
+            self.load_or_init_optimizations()
 
             # init self.vfs
             self.init_vfs()

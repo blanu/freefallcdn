@@ -4,17 +4,18 @@ import os
 from drydrop.app.core.controller import AuthenticatedController
 from google.appengine.api import memcache, users
 from drydrop.app.core.events import log_event
-from drydrop.app.models import Event, Settings
+from drydrop.app.models import Event, Settings, Optimizations
+from django.utils.simplejson import loads, dumps
 
 class AdminController(AuthenticatedController):
-
     def before_action(self, *arguments, **keywords):
         if super(AdminController, self).before_action(*arguments, **keywords): return True
         self.view.update({
             'body_class': '',
             'user': self.user,
             'users': users,
-            'settings': self.handler.settings
+            'settings': self.handler.settings,
+            'optimizations': self.handler.optimizations
         })
         if not users.is_current_user_admin():
             self.render_view('admin/not_admin.html', {'body_class': 'has_error'})
@@ -60,6 +61,9 @@ class AdminController(AuthenticatedController):
     def settings(self):
         self.render_view("admin/settings.html")
 
+    def optimizations(self):
+        self.render_view("admin/optimizations.html")
+        
     def config(self):
         import pygments
         import pygments.lexers
@@ -109,6 +113,26 @@ class AdminController(AuthenticatedController):
         settings.version = settings.version + 1 # this effectively invalidates cache
         settings.domain = domain
         settings.put()
+            
+        return self.render_text(value)
+
+    def update_optimization(self):
+        id = self.params.get('id')
+        domain=os.environ['SERVER_NAME']
+        if not id:
+            return self.json_error('No option id specified')
+            
+        known_options = ['gzip_html']
+        if not id in known_options:
+            return self.json_error('Unknown option id (%s)' % id)
+
+        value = loads(self.params.get('value')) or False
+        log_event("Changed <code>%s</code> to <code>%s</code>" % (id, value))
+        optimizations = self.handler.optimizations
+        optimizations.__setattr__(id, value)
+        optimizations.version = optimizations.version + 1 # this effectively invalidates cache
+        optimizations.domain = domain
+        optimizations.put()
             
         return self.render_text(value)
 

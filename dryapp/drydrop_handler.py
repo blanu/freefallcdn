@@ -7,8 +7,8 @@ from datetime import datetime
 import os
 import os.path
 import sys
-import traceback
 import logging
+import httplib
 
 APP_ROOT = os.path.normpath(os.path.dirname(__file__))
 DRY_ROOT = os.path.join(APP_ROOT, 'drydrop.zip')
@@ -73,8 +73,6 @@ def routing(m):
   return m
   
 def ReadDataFile(path, vfs):
-    import httplib
-    import logging
     # try:
     resource = vfs.get_resource(path)
     # except:
@@ -88,23 +86,11 @@ def ReadDataFile(path, vfs):
     # Return the content and timestamp
     return httplib.OK, resource.content, resource.created_on
 
-class AppHandler(webapp.RequestHandler):
-    
+class AppHandler(webapp.RequestHandler):    
     def __init__(self):
-        import glob
-        import os.path
         import routes
-
         # create a new routing mapper
         self.mapper = routing(routes.Mapper())
-
-        # routes needs to know all the controllers to generate the regular expressions.
-        # controllers = []
-        # for file in glob.glob(os.path.join(DRY_ROOT, 'app', 'controllers', '*.py')):
-        #     name = os.path.basename(file).replace('.py', '')
-        #     if not name.startswith('_'):
-        #         controllers.append(name)
-        # self.mapper.create_regs(controllers)
     
     def get_base_controller(self):
         from drydrop.app.core.controller import BaseController
@@ -114,11 +100,12 @@ class AppHandler(webapp.RequestHandler):
         from drydrop.app.meta.server import ParseAppConfig, MatcherDispatcher, RewriteResponse, cStringIO
         import string
         import logging
-        
+                
         HTTP_date = ''
 
         logging.debug("Meta: dispatching %s", request_path)
-        
+        logging.debug('headers: '+str(request_headers))
+
         login_url = "/login" # TODO
         config, matcher = ParseAppConfig(self.settings.source, config_source, self.vfs, static_caching=True)
         dispatcher = MatcherDispatcher(login_url, [matcher])
@@ -174,7 +161,17 @@ class AppHandler(webapp.RequestHandler):
         # If the request doesn't have an extension, return text/html
         basename, extension = os.path.splitext(request_path)
         if not extension:
-          self.response.headers['Content-Type'] = "text/html"				
+            self.response.headers['Content-Type'] = "text/html"				
+
+        logging.info('extension: '+str(extension))
+
+        # Set far-future Expires header if configured to do so for this content type
+        if extension=='.js' and self.optimizations.expires_js:
+            self.response.headers['Expires']="Thu, 15 Apr 2020 20:00:00 GMT"            
+        elif extension=='.css' and self.optimizations.expires_css:
+			self.response.headers['Expires']="Thu, 15 Apr 2020 20:00:00 GMT"
+
+        self.response.headers['Access-Control-Allow-Origin']='*'
 
         self.response.set_status(status_code, status_message)
         self.response.out.write(body)
@@ -182,7 +179,6 @@ class AppHandler(webapp.RequestHandler):
         
     def system_dispatch(self):
         import logging
-        import drydrop.app as app
         import datetime
         from drydrop.lib.utils import import_module
         from drydrop.app.core.appceptions import PageException
@@ -256,8 +252,14 @@ class AppHandler(webapp.RequestHandler):
         optimizations = Optimizations.all().filter("domain =", os.environ['SERVER_NAME']).fetch(1)
         if len(optimizations)==0:
             o = Optimizations()
+            o.minify_html = False;
             o.expires_js = False;
+            o.minify_js = False;
             o.expires_css = False;
+            o.minify_css = False;
+            o.expires_images = False;
+            o.smush_png = False;
+            o.smush_jpg = False;
             o.domain = os.environ['SERVER_NAME']
             o.put()
             optimizations = [o]
@@ -341,11 +343,7 @@ class AppHandler(webapp.RequestHandler):
 
 
 class Application(object):
-
     def __call__(self, environ, start_response):
-        import logging
-        import sys
-
         request = webapp.Request(environ)
         response = webapp.Response()
         Application.active_instance = self
@@ -374,7 +372,6 @@ class Application(object):
                 handler.error(501)
         except:
             logging.exception(sys.exc_info()[1])
-            import sys
             from drydrop.lib.nice_traceback import show_error
             show_error(handler, 500)
 

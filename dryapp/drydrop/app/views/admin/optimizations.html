@@ -10,18 +10,25 @@
     <p>
       Gzip compression reduces response times and saves up to 70% of bandwidth by losslessly reducing the size of files. It is generally advisable to use gzip compression on all HTML, Javascript, and CSS files.
     </p>
+    <p>
+      Minification of HTML removes whitespace and comments to make the HTML as small as possible.
+    </p>
   </div>
 </div>
 <table class="form">
-  <tr id="gzip-field" class="field">
+  <tr id="gzip_html-field" class="field">
     <td class="label">gzip </td> 
     <td>Automatic</td>
   </tr>
 </table>
 <table class="form">
-  <tr id="gzip_html-field" class="field">
-    <td class="label">gzip compression </td> 
-    <td>Automatic</td>
+  <tr id="minify_html-field" class="field">
+    <td class="label">Minify </td> 
+    {% if optimizations.minify_html %}
+    <td><input type="checkbox" id="minify_html" class="optimization" checked/></td>
+    {% else %}
+    <td><input type="checkbox" id="minify_html" class="optimization"/></td>
+    {% endif %}
   </tr>
 </table>
 
@@ -38,11 +45,14 @@
       The "never expire" option sets a far future Expires header so that cached files will stay cached indefinitely. This is useful for content which is not expected to change. However, if the content needs to be changed then the name of the file will also need to be changed.
       This is good for libraries, but not for content you will be updating. This option is appropriate for deployment sites, but not for development.
     </p>
+    <p>
+      Minification of Javascript rewrites Javascript code to be smaller than is possible with just gzip compression, giving up to 60% savings in terms of size.
+    </p>
   </div>
-</div>
+v</div>
 <table class="form">
   <tr id="gzip_js-field" class="field">
-    <td class="label">gzip compression </td> 
+    <td class="label">gzip </td> 
     <td>Automatic</td>
   </tr>
 </table>
@@ -53,6 +63,16 @@
     <td><input type="checkbox" id="expires_js" class="optimization" checked/></td>
     {% else %}
     <td><input type="checkbox" id="expires_js" class="optimization"/></td>
+    {% endif %}
+  </tr>
+</table>
+<table class="form">
+  <tr id="minify_js-field" class="field">
+    <td class="label">Minify </td> 
+    {% if optimizations.minify_js %}
+    <td><input type="checkbox" id="minify_js" class="optimization" checked/></td>
+    {% else %}
+    <td><input type="checkbox" id="minify_js" class="optimization"/></td>
     {% endif %}
   </tr>
 </table>
@@ -70,11 +90,14 @@
       The "never expire" option sets a far future Expires header so that cached files will stay cached indefinitely. This is useful for content which is not expected to change. However, if the content needs to be changed then the name of the file will also need to be changed.
       This is good for libraries, but not for content you will be updating. This option is appropriate for deployment sites, but not for development.
     </p>
-  </div>
+     <p>
+      Minification of CSS removes whitespace and comments to make the CSS as small as possible.
+    </p>
+ </div>
 </div>
 <table class="form">
   <tr id="gzip_css-field" class="field">
-    <td class="label">gzip compression </td> 
+    <td class="label">gzip </td> 
     <td>Automatic</td>
   </tr>
 </table>
@@ -85,6 +108,62 @@
     <td><input type="checkbox" id="expires_css" class="optimization" checked/></td>
     {% else %}
     <td><input type="checkbox" id="expires_css" class="optimization"/></td>
+    {% endif %}
+  </tr>
+</table>
+<table class="form">
+  <tr id="minify_css-field" class="field">
+    <td class="label">Minify </td> 
+    {% if optimizations.minify_css %}
+    <td><input type="checkbox" id="minify_css" class="optimization" checked/></td>
+    {% else %}
+    <td><input type="checkbox" id="minify_css" class="optimization"/></td>
+    {% endif %}
+  </tr>
+</table>
+
+<div class="form-section">
+  <span>Images</span><span class="help-button">more info </span>
+  <div class="help-text">
+    <p>
+      These are optimizations for your image files.
+    </p>
+    <p>
+      The "never expire" option sets a far future Expires header so that cached files will stay cached indefinitely. This is useful for content which is not expected to change. However, if the content needs to be changed then the name of the file will also need to be changed.
+      This is good for libraries, but not for content you will be updating. This option is appropriate for deployment sites, but not for development.
+    </p>
+     <p>
+       Optimization of PNGs and JPGs removes unnecessary information such as EXIF metadata from images in order to minimize file size. Other image formats are currently not supported to do lack of good optimization tools. Convert your images to PNGs or JPEGs for the smallest size.
+    </p>
+ </div>
+</div>
+<table class="form">
+  <tr id="expires_images-field" class="field">
+    <td class="label">Never expire </td> 
+    {% if optimizations.expires_images %}
+    <td><input type="checkbox" id="expires_images" class="optimization" checked/></td>
+    {% else %}
+    <td><input type="checkbox" id="expires_images" class="optimization"/></td>
+    {% endif %}
+  </tr>
+</table>
+<table class="form">
+  <tr id="smush_png-field" class="field">
+    <td class="label">Optimize PNG </td> 
+    {% if optimizations.smush_png %}
+    <td><input type="checkbox" id="smush_png" class="optimization" checked/></td>
+    {% else %}
+    <td><input type="checkbox" id="smush_png" class="optimization"/></td>
+    {% endif %}
+  </tr>
+</table>
+<table class="form">
+  <tr id="smush_jpg-field" class="field">
+    <td class="label">Optimize JPEG </td> 
+    {% if optimizations.smush_jpg %}
+    <td><input type="checkbox" id="smush_jpg" class="optimization" checked/></td>
+    {% else %}
+    <td><input type="checkbox" id="smush_jpg" class="optimization"/></td>
     {% endif %}
   </tr>
 </table>

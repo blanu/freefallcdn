@@ -5,10 +5,68 @@ import os.path
 import logging
 import datetime
 from drydrop.lib.utils import open_if_exists
-from drydrop.app.models import Resource
+from drydrop.app.models import Resource, Optimizations
 from google.appengine.api import urlfetch
 from google.appengine.ext import db
+from google.appengine.ext import deferred
 from drydrop.app.core.events import log_event
+from django.utils.simplejson import loads, dumps
+
+def minify_js(path, generation, domain):
+    logging.info('Minifying '+str(domain)+' '+str(path))
+    import httplib, urllib
+
+    resource = Resource.find(path=path, generation=generation, domain=domain)
+    if not resource:
+        logging.error('Nothing to minify')
+        return
+
+    params = urllib.urlencode([
+        ('js_code',resource.content),
+        ('compilation_level', 'SIMPLE_OPTIMIZATIONS'),
+        ('output_format', 'text'),
+        ('output_info', 'compiled_code'),
+    ])
+
+    headers = { "Content-type": "application/x-www-form-urlencoded" }
+    conn = httplib.HTTPConnection('closure-compiler.appspot.com')
+    conn.request('POST', '/compile', params, headers)
+    response = conn.getresponse()
+    data = response.read()
+    conn.close
+    resource.content=data
+    resource.save()
+
+def smush(path, generation, domain):
+    logging.info('Smushing '+str(domain)+' '+str(path))
+    import httplib, urllib
+
+    params = urllib.urlencode([
+        ('img', 'http://'+domain+'/'+path),
+    ])
+
+    conn = httplib.HTTPConnection('www.smushit.com')
+    conn.request('GET', '/ysmush.it/ws.php?'+params)
+    response = conn.getresponse()
+    data = response.read()
+    logging.info('data: '+str(data))
+    conn.close
+    
+    result=loads(data)
+    dest=result['dest']
+    
+    response = urlfetch.fetch(dest, follow_redirects=True)
+    if response.status_code!=200:
+        logging.error('Error smushing')
+        return
+
+    resource = Resource.find(path=path, generation=generation, domain=domain)
+    if not resource:
+        logging.error('Nothing to smush')
+        return
+
+    resource.content=response.content
+    resource.save()
 
 class VFS(object):
     """Virtual File System == filesystem abstraction for FreefallCDN"""
@@ -40,7 +98,24 @@ class VFS(object):
             logging.debug("VFS: caching resource %s (%d bytes) for %s", path, length, domain)
             resource.domain = domain
             if content!=None:
-              resource.save()
+                basename, extension = os.path.splitext(path)
+                optimizations = Optimizations.all().filter("domain =", os.environ['SERVER_NAME']).get()            
+                logging.info('optimizations: '+str(optimizations))
+                if extension=='.js' and optimizations and optimizations.minify_js:
+                    logging.info('Deferring to minify')
+                    logging.debug(str(path)+' '+str(self.settings.version)+' '+str(domain))
+                    deferred.defer(minify_js, path, self.settings.version, domain)            
+                elif extension=='.css' and optimizations and optimizations.minify_css:
+                    from drydrop.lib.slimmer import css_slimmer
+                    resource.content=css_slimmer(resource.content)
+                elif (extension=='.html' or (extension==None and path[-1]=='/')) and optimizations and optimizations.minify_html:
+                    from drydrop.lib.slimmer import html_slimmer
+                    resource.content=html_slimmer(resource.content)
+                elif (extension=='.png' or extension=='.jpg' or extension=='.jpeg') and optimizations and optimizations.minify_css:
+                    logging.info('Deferring to smush')
+                    logging.debug(str(path)+' '+str(self.settings.version)+' '+str(domain))
+                    deferred.defer(smush, path, self.settings.version, domain)                        
+                resource.save()
         try:
             length = len(resource.content)
         except:
@@ -113,7 +188,7 @@ class GAEVFS(VFS):
 
     def fetch_resource_content(self, path):
         root = self.settings.source
-        if not root:
+        if not root:            
             return None
         if not root.endswith('/'): root = root + "/"
         url = root + path
@@ -125,7 +200,7 @@ class GAEVFS(VFS):
 
         # note: params should be url-safe, so no need to escape here
         if len(params)>0:
-            url = url + "?" + string.join(params, "&")
+            url = url + "?" + "&".join(params)
 
         response = urlfetch.fetch(url, follow_redirects=True)
         if response.status_code!=200:

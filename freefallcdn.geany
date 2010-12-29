@@ -1,7 +1,7 @@
 
 [indentation]
 indent_width=4
-indent_type=1
+indent_type=0
 indent_hard_tab_width=8
 detect_indent=false
 indent_mode=2
@@ -9,10 +9,24 @@ indent_mode=2
 [project]
 name=freefallcdn
 base_path=/home/brandon/freefallcdn/
+description=
 
 [long line marker]
 long_line_behaviour=1
 long_line_column=72
 
 [files]
-current_page=-1
+current_page=1
+FILE_NAME_0=63;YAML;0;16;1;1;0;/home/brandon/freefallcdn/dryapp/app.yaml;0
+FILE_NAME_1=6973;Python;0;16;1;1;0;/home/brandon/freefallcdn/dryapp/drydrop_handler.py;0
+FILE_NAME_2=1417;Python;0;16;0;1;0;/home/brandon/freefallcdn/dryapp/drydrop/app/core/vfs.py;0
+FILE_NAME_3=6631;HTML;0;16;1;1;0;/home/brandon/freefallcdn/dryapp/drydrop/app/views/admin/optimizations.html;0
+FILE_NAME_4=284;Python;0;16;1;1;0;/home/brandon/freefallcdn/dryapp/drydrop/app/controllers/admin.py;0
+FILE_NAME_5=432;Python;0;16;1;1;0;/home/brandon/freefallcdn/dryapp/drydrop/app/models/optimizations.py;0
+FILE_NAME_6=4100;Javascript;0;16;1;1;0;/home/brandon/freefallcdn/dryapp/drydrop/static/scripts/admin.js;0
+FILE_NAME_7=0;HTML;0;16;1;1;0;/home/brandon/freefallcdn/dryapp/drydrop/app/views/admin/settings.html;0
+
+[build-menu]
+EX_00_LB=Update App Engine
+EX_00_CM=rake upload project=freefallcdn
+EX_00_WD=

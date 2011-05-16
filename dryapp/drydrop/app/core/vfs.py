@@ -34,7 +34,7 @@ def minify_js(path, generation, domain):
     response = conn.getresponse()
     data = response.read()
     conn.close
-    if data[:9]!='Error(22)':
+    if data[:9]!='Error(22)' and len(data)>2:
       resource.content=data
     resource.save()
 
